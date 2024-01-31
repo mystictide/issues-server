@@ -52,7 +52,7 @@ jobs:
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy with rsync
-        run: rsync -avz /home/runner/work/issues-server/issues-server/issues.server/bin/Release/net8.0/publish ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/issapi.herrguller.cc
+        run: rsync -avz /home/runner/work/issues-server/issues-server/issues.server/bin/Release/net8.0/publish/ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/issapi.herrguller.cc/
       - name: Restart the service
         uses: appleboy/ssh-action@master
         with:
