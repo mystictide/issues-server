@@ -36,31 +36,23 @@ jobs:
       env:
         AppSettings.Secret: ${{ secrets.Secret }}
         AppSettings.connectionString: ${{ secrets.ConnectionString }}
-
-  deploy:
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.REMOTE_SSH_KEY }}
-          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
-      - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-      - name: Deploy with rsync
-        run: rsync -avz /home/runner/work/issues-server/issues-server/issues.server/bin/Release/net8.0/publish/ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/issapi.herrguller.cc/
-      - name: Restart the service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
-          port: ${{ secrets.REMOTE_POST }}
-          script: |
-            sudo systemctl stop issues
-            sudo systemctl start issues
-            sudo service nginx reload
+    - name: Install SSH Key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.REMOTE_SSH_KEY }}
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+    - name: Adding Known Hosts
+      run: ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+    - name: Deploy with rsync
+      run: rsync -avz /home/runner/work/issues-server/issues-server/issues.server/bin/Release/net8.0/publish/ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/var/www/issapi.herrguller.cc/
+    - name: Restart the service
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.REMOTE_SSH_KEY }}
+        port: ${{ secrets.REMOTE_POST }}
+        script: |
+          sudo systemctl stop issues
+          sudo systemctl start issues
+          sudo service nginx reload
