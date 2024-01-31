@@ -43,7 +43,7 @@ namespace issues.server.Infrastructure.Managers.Users
 
         public async Task<Infrasructure.Models.Users.Users>? Register(Infrasructure.Models.Users.Users entity)
         {
-            if (entity.Username == null || entity.Email == null || entity.Password == null)
+            if (entity.FirstName == null || entity.LastName == null || entity.Email == null || entity.Password == null)
             {
                 throw new Exception("User information missing");
             }
@@ -52,12 +52,6 @@ namespace issues.server.Infrastructure.Managers.Users
             if (userExists)
             {
                 throw new Exception("Email address already registered");
-            }
-
-            bool usernameExists = await CheckUsername(entity.Username, null);
-            if (usernameExists)
-            {
-                throw new Exception("Username already exists");
             }
 
             var salt = BCrypt.Net.BCrypt.GenerateSalt(10);
@@ -70,8 +64,10 @@ namespace issues.server.Infrastructure.Managers.Users
             {
                 result.AuthType = entity.AuthType;
                 var user = new Infrasructure.Models.Users.Users();
-                user.Username = entity.Username;
+                user.FirstName = entity.FirstName;
+                user.LastName = entity.LastName;
                 user.Email = entity.Email;
+                user.AuthType = entity.AuthType;
                 user.Token = generateToken(result);
                 return user;
             }
@@ -91,8 +87,10 @@ namespace issues.server.Infrastructure.Managers.Users
             {
                 var user = new Infrasructure.Models.Users.Users();
                 user.ID = result.ID;
-                user.Username = result.Username;
+                user.FirstName = result.FirstName;
+                user.LastName = result.LastName;
                 user.Email = result.Email;
+                user.AuthType = result.AuthType;
                 user.Token = generateToken(result);
                 return user;
             }
@@ -103,11 +101,6 @@ namespace issues.server.Infrastructure.Managers.Users
         public async Task<bool> CheckEmail(string Email, int? UserID)
         {
             return await _repo.CheckEmail(Email, UserID);
-        }
-
-        public async Task<bool> CheckUsername(string Username, int? UserID)
-        {
-            return await _repo.CheckUsername(Username, UserID);
         }
 
         public async Task<Infrasructure.Models.Users.Users>? Get(int? ID, string? Username)
@@ -130,26 +123,6 @@ namespace issues.server.Infrastructure.Managers.Users
                 return await _repo.ChangePassword(UserID, currentPassword, newPassword);
             }
             return false;
-        }
-
-        public async Task<string>? UpdateBio(int ID, string Bio)
-        {
-            return await _repo.UpdateBio(ID, Bio);
-        }
-
-        public async Task<bool?> ManageFollow(int TargetID, int UserID)
-        {
-            return await _repo.ManageFollow(TargetID, UserID);
-        }
-
-        public async Task<bool?> ManageBlock(int TargetID, int UserID)
-        {
-            return await _repo.ManageBlock(TargetID, UserID);
-        }
-
-        public async Task<int?> GetUserFunctionID(int TargetID, int UserID, bool function)
-        {
-            return await _repo.GetUserFunctionID(TargetID, UserID, function);
         }
     }
 }

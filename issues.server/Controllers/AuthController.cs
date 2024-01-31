@@ -19,7 +19,9 @@ namespace issues.server.Controllers
                 var data = await new UserManager().Register(user);
                 var userData = new UserReturn();
                 userData.UID = data.ID;
-                userData.Username = data.Username;
+                userData.FirstName = data.FirstName;
+                userData.LastName = data.LastName;
+                userData.AuthType = data.AuthType;
                 userData.Email = data.Email;
                 userData.Token = data.Token;
                 return Ok(userData);
@@ -39,7 +41,9 @@ namespace issues.server.Controllers
                 var data = await new UserManager().Login(user);
                 var userData = new UserReturn();
                 userData.UID = data.ID;
-                userData.Username = data.Username;
+                userData.FirstName = data.FirstName;
+                userData.LastName = data.LastName;
+                userData.AuthType = data.AuthType;
                 userData.Email = data.Email;
                 userData.Token = data.Token;
                 return Ok(userData);
@@ -66,31 +70,6 @@ namespace issues.server.Controllers
                 {
                     exists = await new UserManager().CheckEmail(email, userID);
                 }
-                return Ok(exists);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(401, ex.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("cusername")]
-        public async Task<IActionResult> CheckExistingUsername([FromBody] string username)
-        {
-            try
-            {
-                bool exists;
-                var userID = AuthHelpers.CurrentUserID(HttpContext);
-                if (userID < 1)
-                {
-                    exists = await new UserManager().CheckUsername(username, null);
-                }
-                else
-                {
-                    exists = await new UserManager().CheckUsername(username, userID);
-                }
-
                 return Ok(exists);
             }
             catch (Exception ex)
