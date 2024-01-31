@@ -53,6 +53,6 @@ jobs:
         key: ${{ secrets.REMOTE_SSH_KEY }}
         port: ${{ secrets.REMOTE_POST }}
         script: |
-          sudo systemctl stop issues
-          sudo systemctl start issues
-          sudo service nginx reload
+          systemctl stop issues
+          systemctl start issues
+          service nginx reload
