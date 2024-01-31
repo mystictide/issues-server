@@ -32,7 +32,7 @@ jobs:
     - name: App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
       with:
-        files: '${{env.DOTNET_ROOT}}/issues.server/issues.server/appsettings.json'
+        files: '/home/runner/work/issues-server/issues-server/issues.server/bin/Release/net8.0/publish/appsettings.json'
       env:
         AppSettings.Secret: ${{ secrets.Secret }}
         AppSettings.connectionString: ${{ secrets.ConnectionString }}
