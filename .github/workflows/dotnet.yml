@@ -38,7 +38,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Stop Service
-        uses: garygrossgarten/github-action-ssh@v0.6.3
+        uses: garygrossgarten/github-action-ssh@release
         with:
           command: service issues stop
           host: ${{ secrets.REMOTE_HOST }}
@@ -58,7 +58,7 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Production
       - name: Start Service
-        uses: garygrossgarten/github-action-ssh@v0.6.3
+        uses: garygrossgarten/github-action-ssh@release
         with:
           command: service issues start
           host: ${{ secrets.REMOTE_HOST }}
