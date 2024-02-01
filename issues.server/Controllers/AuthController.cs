@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using issues.server.Infrastructure.Helpers;
-using issues.server.Infrasructure.Models.Users;
-using issues.server.Infrasructure.Models.Returns;
-using issues.server.Infrastructure.Managers.Users;
+using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Managers.Main;
 
 namespace issues.server.Controllers
 {
@@ -17,14 +16,7 @@ namespace issues.server.Controllers
             try
             {
                 var data = await new UserManager().Register(user);
-                var userData = new UserReturn();
-                userData.UID = data.ID;
-                userData.FirstName = data.FirstName;
-                userData.LastName = data.LastName;
-                userData.AuthType = data.AuthType;
-                userData.Email = data.Email;
-                userData.Token = data.Token;
-                return Ok(userData);
+                return Ok(data);
             }
             catch (Exception ex)
             {
@@ -39,14 +31,7 @@ namespace issues.server.Controllers
             try
             {
                 var data = await new UserManager().Login(user);
-                var userData = new UserReturn();
-                userData.UID = data.ID;
-                userData.FirstName = data.FirstName;
-                userData.LastName = data.LastName;
-                userData.AuthType = data.AuthType;
-                userData.Email = data.Email;
-                userData.Token = data.Token;
-                return Ok(userData);
+                return Ok(data);
             }
             catch (Exception ex)
             {

@@ -50,8 +50,8 @@ namespace issues.server.Infrastructure.Helpers
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var authType = int.Parse(jwtToken.Claims.First(x => x.Type == "authType").Value);
-                if (authType >= AuthorizedAuthType)
+                var role = int.Parse(jwtToken.Claims.First(x => x.Type == "role").Value);
+                if (role >= AuthorizedAuthType)
                 {
                     return true;
                 }

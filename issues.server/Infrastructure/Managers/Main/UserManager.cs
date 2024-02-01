@@ -2,11 +2,12 @@
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using issues.server.Infrastructure.Data.Repo.User;
+using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Data.Repo.Main;
 using issues.server.Infrastructure.Models.Helpers;
-using issues.server.Infrastructure.Data.Interface.User;
+using issues.server.Infrastructure.Data.Interface.Main;
 
-namespace issues.server.Infrastructure.Managers.Users
+namespace issues.server.Infrastructure.Managers.Main
 {
     public class UserManager : AppSettings, IUsers
     {
@@ -16,7 +17,7 @@ namespace issues.server.Infrastructure.Managers.Users
             _repo = new UserRepository();
         }
 
-        private string generateToken(Infrasructure.Models.Users.Users user)
+        private string generateToken(Users user)
         {
             try
             {
@@ -26,7 +27,7 @@ namespace issues.server.Infrastructure.Managers.Users
                 {
                     Subject = new ClaimsIdentity(new[] {
                     new Claim("id", user.ID.ToString()),
-                    new Claim("authType", user.AuthType.ToString())
+                    new Claim("role", user.Role.ToString())
                 }),
                     Expires = DateTime.UtcNow.AddDays(10),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -41,7 +42,7 @@ namespace issues.server.Infrastructure.Managers.Users
 
         }
 
-        public async Task<Infrasructure.Models.Users.Users>? Register(Infrasructure.Models.Users.Users entity)
+        public async Task<Users>? Register(Users entity)
         {
             if (entity.FirstName == null || entity.LastName == null || entity.Email == null || entity.Password == null)
             {
@@ -57,24 +58,17 @@ namespace issues.server.Infrastructure.Managers.Users
             var salt = BCrypt.Net.BCrypt.GenerateSalt(10);
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(entity.Password, salt);
             entity.Password = hashedPassword;
-            entity.AuthType = 1;
 
             var result = await _repo.Register(entity);
             if (result != null)
             {
-                result.AuthType = entity.AuthType;
-                var user = new Infrasructure.Models.Users.Users();
-                user.FirstName = entity.FirstName;
-                user.LastName = entity.LastName;
-                user.Email = entity.Email;
-                user.AuthType = entity.AuthType;
-                user.Token = generateToken(result);
-                return user;
+                result.Token = generateToken(result);
+                return result;
             }
             throw new Exception("Server error.");
         }
 
-        public async Task<Infrasructure.Models.Users.Users>? Login(Infrasructure.Models.Users.Users entity)
+        public async Task<Users>? Login(Users entity)
         {
             if (entity.Email == null || entity.Password == null)
             {
@@ -85,14 +79,8 @@ namespace issues.server.Infrastructure.Managers.Users
 
             if (result != null && BCrypt.Net.BCrypt.Verify(entity.Password, result.Password))
             {
-                var user = new Infrasructure.Models.Users.Users();
-                user.ID = result.ID;
-                user.FirstName = result.FirstName;
-                user.LastName = result.LastName;
-                user.Email = result.Email;
-                user.AuthType = result.AuthType;
-                user.Token = generateToken(result);
-                return user;
+                result.Token = generateToken(result);
+                return result;
             }
 
             throw new Exception("Invalid credentials");
@@ -103,7 +91,7 @@ namespace issues.server.Infrastructure.Managers.Users
             return await _repo.CheckEmail(Email, UserID);
         }
 
-        public async Task<Infrasructure.Models.Users.Users>? Get(int? ID, string? Username)
+        public async Task<Users>? Get(int? ID, string? Username)
         {
             return await _repo.Get(ID, Username);
         }

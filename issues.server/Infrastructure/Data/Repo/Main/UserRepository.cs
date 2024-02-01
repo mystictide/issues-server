@@ -1,11 +1,11 @@
 ﻿using Dapper;
-using issues.server.Infrasructure.Models.Users;
+using issues.server.Infrastructure.Models.Main;
 using issues.server.Infrastructure.Models.Helpers;
 using issues.server.Infrastructure.Data.Repo.Helpers;
-using issues.server.Infrastructure.Data.Interface.User;
+using issues.server.Infrastructure.Data.Interface.Main;
 using issues.server.Infrasructure.Models.Users.Helpers;
 
-namespace issues.server.Infrastructure.Data.Repo.User
+namespace issues.server.Infrastructure.Data.Repo.Main
 {
     public class UserRepository : AppSettings, IUsers
     {
