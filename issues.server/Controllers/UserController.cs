@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using issues.server.Infrastructure.Helpers;
-using issues.server.Infrastructure.Managers.Main;
+using issues.server.Infrastructure.Data.Managers.Main;
 
 namespace issues.server.Controllers
 {

@@ -9,5 +9,6 @@ namespace issues.server.Infrastructure.Models.Main
         public required string Email { get; set; }
         [JsonIgnore]
         public required string Password { get; set; }
+        public string? Token { get; set; }
     }
 }

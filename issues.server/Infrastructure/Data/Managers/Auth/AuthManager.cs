@@ -3,21 +3,21 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using issues.server.Infrastructure.Models.Main;
-using issues.server.Infrastructure.Data.Repo.Main;
+using issues.server.Infrastructure.Data.Repo.Auth;
 using issues.server.Infrastructure.Models.Helpers;
-using issues.server.Infrastructure.Data.Interface.Main;
+using issues.server.Infrastructure.Data.Interface.Auth;
 
-namespace issues.server.Infrastructure.Managers.Main
+namespace issues.server.Infrastructure.Data.Managers.Auth
 {
-    public class UserManager : AppSettings, IUsers
+    public class AuthManager : AppSettings, IAuth
     {
-        private readonly IUsers _repo;
-        public UserManager()
+        private readonly IAuth _repo;
+        public AuthManager()
         {
-            _repo = new UserRepository();
+            _repo = new AuthRepository();
         }
 
-        private string generateToken(Users user)
+        private string generateToken(int ID, int Role)
         {
             try
             {
@@ -26,8 +26,8 @@ namespace issues.server.Infrastructure.Managers.Main
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new[] {
-                    new Claim("id", user.ID.ToString()),
-                    new Claim("role", user.Role.ToString())
+                    new Claim("id", ID.ToString()),
+                    new Claim("role", Role.ToString())
                 }),
                     Expires = DateTime.UtcNow.AddDays(10),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -42,11 +42,11 @@ namespace issues.server.Infrastructure.Managers.Main
 
         }
 
-        public async Task<Users>? Register(Users entity)
+        public async Task<Companies>? Register(Companies entity)
         {
-            if (entity.FirstName == null || entity.LastName == null || entity.Email == null || entity.Password == null)
+            if (entity.Name == null ||  entity.Email == null || entity.Password == null)
             {
-                throw new Exception("User information missing");
+                throw new Exception("Company information missing");
             }
 
             bool userExists = await CheckEmail(entity.Email, null);
@@ -62,10 +62,28 @@ namespace issues.server.Infrastructure.Managers.Main
             var result = await _repo.Register(entity);
             if (result != null)
             {
-                result.Token = generateToken(result);
+                result.Token = generateToken(result.ID, 1);
                 return result;
             }
             throw new Exception("Server error.");
+        }
+
+        public async Task<Companies>? CompanyLogin(Companies entity)
+        {
+            if (entity.Email == null || entity.Password == null)
+            {
+                throw new Exception("Company information missing");
+            }
+
+            var result = await _repo.CompanyLogin(entity);
+
+            if (result != null && BCrypt.Net.BCrypt.Verify(entity.Password, result.Password))
+            {
+                result.Token = generateToken(result.ID, 1);
+                return result;
+            }
+
+            throw new Exception("Invalid credentials");
         }
 
         public async Task<Users>? Login(Users entity)
@@ -79,7 +97,7 @@ namespace issues.server.Infrastructure.Managers.Main
 
             if (result != null && BCrypt.Net.BCrypt.Verify(entity.Password, result.Password))
             {
-                result.Token = generateToken(result);
+                result.Token = generateToken(result.ID, result.Role.ID);
                 return result;
             }
 
@@ -89,28 +107,6 @@ namespace issues.server.Infrastructure.Managers.Main
         public async Task<bool> CheckEmail(string Email, int? UserID)
         {
             return await _repo.CheckEmail(Email, UserID);
-        }
-
-        public async Task<Users>? Get(int? ID, string? Username)
-        {
-            return await _repo.Get(ID, Username);
-        }
-
-        public async Task<string>? UpdateEmail(int ID, string Email)
-        {
-            return await _repo.UpdateEmail(ID, Email);
-        }
-
-        public async Task<bool>? ChangePassword(int UserID, string currentPassword, string newPassword)
-        {
-            var result = await _repo.Get(UserID, null);
-            if (result != null && BCrypt.Net.BCrypt.Verify(currentPassword, result.Password))
-            {
-                var salt = BCrypt.Net.BCrypt.GenerateSalt(10);
-                newPassword = BCrypt.Net.BCrypt.HashPassword(newPassword, salt);
-                return await _repo.ChangePassword(UserID, currentPassword, newPassword);
-            }
-            return false;
         }
     }
 }
