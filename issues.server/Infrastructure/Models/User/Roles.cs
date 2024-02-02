@@ -11,8 +11,8 @@
         {
             { 1, "Has full access to all features and data." },
             { 2, "Can manage users, projects and system settings." },
-            { 3, "Can assign users to projects." },
-            { 4, "Can create, edit and delete projects." },
+            { 3, "Can assign users to projects and issues." },
+            { 4, "Can create, edit and delete projects and issues." },
             { 5, "Can assign users to issues." },
             { 6, "Can create, edit and close issues." },
             { 7, "Can view all projects." },

@@ -80,7 +80,7 @@ namespace issues.server.Infrastructure.Data.Repo.Auth
             }
         }
 
-        public async Task<bool> CheckEmail(string Email, int? UserID)
+        public async Task<bool> CheckEmail(bool company, string Email, int? UserID)
         {
             DynamicParameters param = new DynamicParameters();
             param.Add("@UserID", UserID);
@@ -89,16 +89,16 @@ namespace issues.server.Infrastructure.Data.Repo.Auth
             string Query;
             if (UserID.HasValue)
             {
-                Query = @"
+                Query = $@"
                 SELECT CASE WHEN COUNT(id) > 0 THEN 1 ELSE 0 END
-                FROM users 
+                FROM {(company ? "companies" : "users")} 
                 WHERE email = @Email AND NOT (id = @UserID);";
             }
             else
             {
-                Query = @"
+                Query = $@"
                 SELECT CASE WHEN COUNT(id) > 0 THEN 1 ELSE 0 END
-                FROM users 
+                FROM {(company ? "companies" : "users")} 
                 WHERE email = @Email;";
             }
 

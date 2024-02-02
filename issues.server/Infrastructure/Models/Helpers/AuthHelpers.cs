@@ -7,9 +7,9 @@ namespace issues.server.Infrastructure.Helpers
 {
     public class AuthHelpers : AppSettings
     {
-        public static bool Authorize(HttpContext context, int AuthorizedAuthType)
+        public static bool Authorize(HttpContext context, int AuthorizedRole)
         {
-            return ValidateToken(ReadBearerToken(context), AuthorizedAuthType);
+            return ValidateToken(ReadBearerToken(context), AuthorizedRole);
         }
         public static int CurrentUserID(HttpContext context)
         {
@@ -34,7 +34,7 @@ namespace issues.server.Infrastructure.Helpers
                 return null;
             }
         }
-        public static bool ValidateToken(string? encodedToken, int AuthorizedAuthType)
+        public static bool ValidateToken(string? encodedToken, int AuthorizedRole)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace issues.server.Infrastructure.Helpers
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var role = int.Parse(jwtToken.Claims.First(x => x.Type == "role").Value);
-                if (role >= AuthorizedAuthType)
+                if (role >= AuthorizedRole)
                 {
                     return true;
                 }

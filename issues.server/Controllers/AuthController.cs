@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using issues.server.Infrastructure.Helpers;
 using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Models.Helpers;
+using issues.server.Infrastructure.Models.Response;
 using issues.server.Infrastructure.Data.Managers.Auth;
 
 namespace issues.server.Controllers
@@ -15,8 +17,14 @@ namespace issues.server.Controllers
         {
             try
             {
+
                 var data = await new AuthManager().Register(company);
-                return Ok(data);
+                var userData = new CompanyResponse();
+                userData.ID = data.ID;
+                userData.Name = data.Name;
+                userData.Email = data.Email;
+                userData.Token = data.Token;
+                return Ok(userData);
             }
             catch (Exception ex)
             {
@@ -31,14 +39,19 @@ namespace issues.server.Controllers
             try
             {
                 var data = await new AuthManager().CompanyLogin(company);
-                return Ok(data);
+                var userData = new CompanyResponse();
+                userData.ID = data.ID;
+                userData.Name = data.Name;
+                userData.Email = data.Email;
+                userData.Token = data.Token;
+                return Ok(userData);
             }
             catch (Exception ex)
             {
                 return StatusCode(401, ex.Message);
             }
-        }        
-        
+        }
+
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] Users user)
@@ -46,7 +59,15 @@ namespace issues.server.Controllers
             try
             {
                 var data = await new AuthManager().Login(user);
-                return Ok(data);
+                var userData = new UserResponse();
+                userData.ID = data.ID;
+                userData.FirstName = data.FirstName;
+                userData.LastName = data.LastName;
+                userData.Email = data.Email;
+                userData.Company = data.Company;
+                userData.Role = data.Role;
+                userData.Token = data.Token;
+                return Ok(userData);
             }
             catch (Exception ex)
             {
@@ -56,7 +77,7 @@ namespace issues.server.Controllers
 
         [HttpPost]
         [Route("cmail")]
-        public async Task<IActionResult> CheckExistingEmail([FromBody] string email)
+        public async Task<IActionResult> CheckExistingEmail([FromBody] EmailCheck entity)
         {
             try
             {
@@ -64,11 +85,11 @@ namespace issues.server.Controllers
                 var userID = AuthHelpers.CurrentUserID(HttpContext);
                 if (userID < 1)
                 {
-                    exists = await new AuthManager().CheckEmail(email, null);
+                    exists = await new AuthManager().CheckEmail(entity.Company, entity.Email, null);
                 }
                 else
                 {
-                    exists = await new AuthManager().CheckEmail(email, userID);
+                    exists = await new AuthManager().CheckEmail(entity.Company, entity.Email, userID);
                 }
                 return Ok(exists);
             }

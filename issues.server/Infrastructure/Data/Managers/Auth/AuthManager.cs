@@ -39,7 +39,6 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
             {
                 return null;
             }
-
         }
 
         public async Task<Companies>? Register(Companies entity)
@@ -49,7 +48,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 throw new Exception("Company information missing");
             }
 
-            bool userExists = await CheckEmail(entity.Email, null);
+            bool userExists = await CheckEmail(true, entity.Email, null);
             if (userExists)
             {
                 throw new Exception("Email address already registered");
@@ -62,8 +61,11 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
             var result = await _repo.Register(entity);
             if (result != null)
             {
-                result.Token = generateToken(result.ID, 1);
-                return result;
+                var admin = new Companies();
+                admin.Name = entity.Name;
+                admin.Email = entity.Email;
+                admin.Token = generateToken(result.ID, 1);
+                return admin;
             }
             throw new Exception("Server error.");
         }
@@ -79,8 +81,12 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
 
             if (result != null && BCrypt.Net.BCrypt.Verify(entity.Password, result.Password))
             {
-                result.Token = generateToken(result.ID, 1);
-                return result;
+                var admin = new Companies();
+                admin.ID = result.ID;
+                admin.Name = result.Name;
+                admin.Email = result.Email;
+                admin.Token = generateToken(result.ID, 1);
+                return admin;
             }
 
             throw new Exception("Invalid credentials");
@@ -97,16 +103,21 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
 
             if (result != null && BCrypt.Net.BCrypt.Verify(entity.Password, result.Password))
             {
-                result.Token = generateToken(result.ID, result.Role.ID);
-                return result;
+                var user = new Users();
+                user.ID = result.ID;
+                user.FirstName = result.FirstName;
+                user.LastName = result.LastName;
+                user.Email = result.Email;
+                user.Token = generateToken(result.ID, result.Role.ID);
+                return user;
             }
 
             throw new Exception("Invalid credentials");
         }
 
-        public async Task<bool> CheckEmail(string Email, int? UserID)
+        public async Task<bool> CheckEmail(bool company, string Email, int? UserID)
         {
-            return await _repo.CheckEmail(Email, UserID);
+            return await _repo.CheckEmail(company, Email, UserID);
         }
     }
 }

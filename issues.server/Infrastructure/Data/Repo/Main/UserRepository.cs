@@ -36,7 +36,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
         {
             try
             {
-                var access = await new AuthManager().CheckEmail(Email, ID);
+                var access = await new AuthManager().CheckEmail(true, Email, ID);
                 if (!access)
                 {
                     string query = $@"
