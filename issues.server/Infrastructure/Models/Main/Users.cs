@@ -1,19 +1,16 @@
-﻿using Dapper.Contrib.Extensions;
+﻿using issues.server.Infrastructure.Models.User;
 
-namespace issues.server.Infrasructure.Models.Users
+namespace issues.server.Infrastructure.Models.Main
 {
-    [Table("users")]
     public class Users
     {
-        [Key]
-        public int? ID { get; set; }
+        public int ID { get; set; }
+        public Companies? Company { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
-        public int? AuthType { get; set; }
-
-        [Write(false)]
+        public Roles? Role { get; set; }
         public string? Token { get; set; }
     }
 }
