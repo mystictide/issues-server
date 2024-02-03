@@ -2,17 +2,18 @@
 {
     public class Issues
     {
-        public required int ID { get; set; }
-        public required Projects Project { get; set; }
-        public required string Title { get; set; }
+        public int ID { get; set; }
+        public Projects? Project { get; set; }
+        public string? Title { get; set; }
         public string? Description { get; set; }
-        public required Types Type { get; set; }
-        public required States Status { get; set; }
-        public required Priorities Priority { get; set; }
-        public required Users CreatedBy { get; set; }
-        public required List<Users> AssignedTo { get; set; }
-        public required DateTime CreatedDate { get; set; }
-        public required DateTime EndDate { get; set; }
+        public Types Type { get; set; }
+        public States Status { get; set; }
+        public Priorities Priority { get; set; }
+        public Users? CreatedBy { get; set; }
+        public List<Users>? AssignedTo { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsActive { get; set; }
     }
     public enum States
     {

@@ -15,6 +15,7 @@ namespace issues.server.Infrastructure.Helpers
         {
             return ValidateUser(ReadBearerToken(context));
         }
+
         public static string? ReadBearerToken(HttpContext context)
         {
             try

@@ -1,5 +1,4 @@
 ﻿using issues.server.Infrastructure.Models.Main;
-using issues.server.Infrastructure.Models.User;
 
 namespace issues.server.Infrastructure.Models.Response
 {

@@ -5,8 +5,8 @@ using issues.server.Infrastructure.Data.Managers.Main;
 namespace issues.server.Controllers
 {
     [ApiController]
-    [Route("user")]
-    public class UserController : ControllerBase
+    [Route("settings")]
+    public class SettingsController : ControllerBase
     {
         private static int AuthorizedAuthType = 1;
 

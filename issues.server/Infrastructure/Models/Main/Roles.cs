@@ -1,11 +1,12 @@
-﻿namespace issues.server.Infrastructure.Models.User
+﻿namespace issues.server.Infrastructure.Models.Main
 {
     public class Roles
     {
-        public required int ID { get; set; }
-        public required int CompanyID { get; set; }
-        public required string Name { get; set; }
-        public required int[] Attributes { get; set; }
+        public int ID { get; set; }
+        public int CompanyID { get; set; }
+        public string? Name { get; set; }
+        public int[]? Attributes { get; set; }
+        public bool IsActive { get; set; }
 
         public static readonly Dictionary<int, string> RoleAttributes = new()
         {

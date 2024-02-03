@@ -1,6 +1,4 @@
-﻿using issues.server.Infrastructure.Models.User;
-
-namespace issues.server.Infrastructure.Models.Main
+﻿namespace issues.server.Infrastructure.Models.Main
 {
     public class Users
     {
@@ -12,5 +10,6 @@ namespace issues.server.Infrastructure.Models.Main
         public string? Password { get; set; }
         public Roles? Role { get; set; }
         public string? Token { get; set; }
+        public bool IsActive { get; set; }
     }
 }
