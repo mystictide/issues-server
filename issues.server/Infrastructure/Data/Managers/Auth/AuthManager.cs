@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,7 +18,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
             _repo = new AuthRepository();
         }
 
-        private string generateToken(int ID, int Role)
+        private string generateToken(int ID, List<int> Role)
         {
             try
             {
@@ -27,7 +28,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 {
                     Subject = new ClaimsIdentity(new[] {
                     new Claim("id", ID.ToString()),
-                    new Claim("role", Role.ToString())
+                    new Claim("role", JsonSerializer.Serialize(Role))
                 }),
                     Expires = DateTime.UtcNow.AddDays(10),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -43,7 +44,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
 
         public async Task<Companies>? Register(Companies entity)
         {
-            if (entity.Name == null ||  entity.Email == null || entity.Password == null)
+            if (entity.Name == null || entity.Email == null || entity.Password == null)
             {
                 throw new Exception("Company information missing");
             }
@@ -64,7 +65,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 var admin = new Companies();
                 admin.Name = entity.Name;
                 admin.Email = entity.Email;
-                admin.Token = generateToken(result.ID, 1);
+                admin.Token = generateToken(result.ID, [1]);
                 return admin;
             }
             throw new Exception("Server error.");
@@ -85,7 +86,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 admin.ID = result.ID;
                 admin.Name = result.Name;
                 admin.Email = result.Email;
-                admin.Token = generateToken(result.ID, 1);
+                admin.Token = generateToken(result.ID, [1]);
                 return admin;
             }
 
@@ -108,7 +109,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 user.FirstName = result.FirstName;
                 user.LastName = result.LastName;
                 user.Email = result.Email;
-                user.Token = generateToken(result.ID, result.Role.ID);
+                user.Token = generateToken(result.ID, result.Role.Attributes);
                 return user;
             }
 

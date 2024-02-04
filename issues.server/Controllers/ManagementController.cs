@@ -9,7 +9,7 @@ namespace issues.server.Controllers
     [Route("manage")]
     public class ManagementController : ControllerBase
     {
-        private static int AuthorizedAuthType = 1;
+        private static int[] AuthorizedRoles = [1, 2];
 
         [HttpPost]
         [Route("role")]
@@ -17,14 +17,25 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedAuthType))
+                if (AuthHelpers.Authorize(HttpContext, [1]))
                 {
                     var role = await new RolesManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
-                    if (CompanyID == role?.CompanyID)
+                    if (role != null)
                     {
-                        var result = await new RolesManager().Manage(entity);
-                        return Ok(result);
+                        if (CompanyID == role?.CompanyID)
+                        {
+                            var result = await new RolesManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity.CompanyID)
+                        {
+                            var result = await new RolesManager().Manage(entity);
+                            return Ok(result);
+                        }
                     }
                     return StatusCode(401, "Access denied");
                 }

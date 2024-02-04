@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using issues.server.Infrastructure.Models.Helpers;
@@ -7,9 +8,9 @@ namespace issues.server.Infrastructure.Helpers
 {
     public class AuthHelpers : AppSettings
     {
-        public static bool Authorize(HttpContext context, int AuthorizedRole)
+        public static bool Authorize(HttpContext context, int[] AuthorizedRoles)
         {
-            return ValidateToken(ReadBearerToken(context), AuthorizedRole);
+            return ValidateToken(ReadBearerToken(context), AuthorizedRoles);
         }
         public static int CurrentUserID(HttpContext context)
         {
@@ -35,7 +36,7 @@ namespace issues.server.Infrastructure.Helpers
                 return null;
             }
         }
-        public static bool ValidateToken(string? encodedToken, int AuthorizedRole)
+        public static bool ValidateToken(string? encodedToken, int[] AuthorizedRoles)
         {
             try
             {
@@ -51,8 +52,8 @@ namespace issues.server.Infrastructure.Helpers
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var role = int.Parse(jwtToken.Claims.First(x => x.Type == "role").Value);
-                if (role >= AuthorizedRole)
+                int[]? roleAttributes = JsonConvert.DeserializeObject<int[]>(jwtToken.Claims.First(x => x.Type == "role").Value);
+                if (AuthorizedRoles.Any(l2 => roleAttributes.Contains(l2)))
                 {
                     return true;
                 }

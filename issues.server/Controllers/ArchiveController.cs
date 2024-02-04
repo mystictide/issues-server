@@ -9,7 +9,7 @@ namespace issues.server.Controllers
     [Route("archive")]
     public class ArchiveController : ControllerBase
     {
-        private static int AuthorizedAuthType = 1;
+        private static int[] AuthorizedRoles = [1];
 
         [HttpPost]
         [Route("role")]
@@ -17,7 +17,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedAuthType))
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
                 {
                     var role = await new RolesManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);

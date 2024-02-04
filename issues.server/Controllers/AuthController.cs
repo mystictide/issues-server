@@ -76,13 +76,13 @@ namespace issues.server.Controllers
 
         [HttpPost]
         [Route("cmail")]
-        public async Task<IActionResult> CheckExistingEmail([FromBody] Dictionary<string, bool> data)
+        public async Task<IActionResult> CheckExistingEmail([FromBody] Dictionary<string, string> data)
         {
             try
             {
                 bool exists;
-                string Email = data["email"].ToString();
-                bool Company = data["company"];
+                string Email = data["email"];
+                bool Company = bool.Parse(data["company"]);
                 var UserID = AuthHelpers.CurrentUserID(HttpContext);
                 if (UserID < 1)
                 {

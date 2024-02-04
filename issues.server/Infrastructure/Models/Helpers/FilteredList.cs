@@ -13,7 +13,7 @@
         {
             ID = 0;
             Keyword = "";
-            pageSize = 10;
+            pageSize = 2;
             page = 1;
             SortBy = "desc";
         }

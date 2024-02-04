@@ -20,8 +20,13 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     filterModel = filterModel,
                 };
                 FilteredList<Roles> result = new FilteredList<Roles>();
+                string kw = "''";
+                if (filter.Keyword != null)
+                {
+                    kw = $@"'%{filter.Keyword}%'";
+                }
 
-                string WhereClause = $@"WHERE t.name ilike {filter.Keyword}";
+                string WhereClause = $@"WHERE t.name ilike '%{filter.Keyword}%'";
                 string query_count = $@"Select Count(t.id) from roles t {WhereClause}";
 
                 using (var con = GetConnection)
@@ -32,7 +37,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     SELECT *
                     FROM roles t
                     {WhereClause}
-                    order by id
+                    order by id {request.filter.SortBy}
                     OFFSET {request.filter.pager.StartIndex} ROWS
                     FETCH NEXT {request.filter.pageSize} ROWS ONLY";
                     result.data = await con.QueryAsync<Roles>(query);
@@ -55,11 +60,20 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 SELECT *
                 FROM roles t
                 WHERE t.id = {ID};";
+                string attrQuery = $@"
+                SELECT t.attributeid 
+                FROM roleattributes t
+                WHERE t.roleid = {ID};";
 
                 using (var con = GetConnection)
                 {
-                    var res = await con.QueryFirstOrDefaultAsync<Roles>(query);
-                    return res;
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryFirstOrDefaultAsync<Roles>(query);
+                        res.Attributes = (List<int>)await con.QueryAsync<int>(attrQuery);
+                        return res;
+                    }
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -80,7 +94,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 }
 
                 string query = $@"
-                INSERT INTO posts (id, companyid, name, isactive)
+                INSERT INTO roles (id, companyid, name, isactive)
 	 	        VALUES ({identity}, {entity.CompanyID}, '{entity.Name}', true)
                 ON CONFLICT (id) DO UPDATE 
                 SET name = '{entity.Name}'
@@ -89,16 +103,17 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 using (var connection = GetConnection)
                 {
                     var res = await connection.QueryFirstOrDefaultAsync<Roles>(query);
-                    int[] atts = [];
-                    foreach (var item in Roles.RoleAttributes)
+                    query = $@"DELETE from roleattributes where roleid = {res.ID};";
+                    await connection.QueryFirstOrDefaultAsync<int>(query);
+                    var atts = new List<int>();
+                    foreach (var item in entity.Attributes)
                     {
                         query = $@"
-                        DELETE from roleattributes where roleid = {entity.ID};
                         INSERT INTO roleattributes (id, roleid, attributeid)
-	 	                VALUES (default, {entity.ID}, {item})
-                        RETURNING id;";
-                        var id = await connection.QueryFirstOrDefaultAsync<int>(query);
-                        atts.Append(id);
+	 	                VALUES (default, {res.ID}, {item})
+                        RETURNING attributeid;";
+                        int id = await connection.QueryFirstOrDefaultAsync<int>(query);
+                        atts.Add(id);
                     }
                     res.Attributes = atts;
                     return res;

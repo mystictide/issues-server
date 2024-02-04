@@ -8,7 +8,7 @@ namespace issues.server.Controllers
     [Route("get")]
     public class GetController : ControllerBase
     {
-        private static int AuthorizedAuthType = 1;
+        private static int[] AuthorizedRoles = [1];
 
         [HttpGet]
         [Route("role")]
@@ -16,7 +16,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedAuthType))
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
                 {
                     var role = await new RolesManager().Get(ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);

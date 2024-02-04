@@ -9,7 +9,7 @@ namespace issues.server.Controllers
     [Route("filter")]
     public class FilterController : ControllerBase
     {
-        private static int AuthorizedAuthType = 1;
+        private static int[] AuthorizedRoles = [1];
 
         [HttpPost]
         [Route("roles")]
@@ -17,7 +17,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedAuthType))
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
                 {
                     var result = await new RolesManager().FilteredList(filter);
                     return Ok(result);

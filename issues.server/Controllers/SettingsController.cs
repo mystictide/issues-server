@@ -8,7 +8,7 @@ namespace issues.server.Controllers
     [Route("settings")]
     public class SettingsController : ControllerBase
     {
-        private static int AuthorizedAuthType = 1;
+        private static int[] AuthorizedRoles = [1];
 
         [HttpPost]
         [Route("update/password")]
@@ -18,7 +18,7 @@ namespace issues.server.Controllers
             {
                 string currentPassword = data["currentPassword"];
                 string newPassword = data["newPassword"];
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedAuthType))
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
                 {
                     var result = await new UserManager().ChangePassword(AuthHelpers.CurrentUserID(HttpContext), currentPassword, newPassword);
                     return Ok(result);
@@ -40,7 +40,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedAuthType))
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
                 {
                     var result = await new UserManager().UpdateEmail(AuthHelpers.CurrentUserID(HttpContext), email);
                     if (result == null)
