@@ -11,5 +11,6 @@ namespace issues.server.Infrastructure.Models.Response
         public string? Email { get; set; }
         public Roles? Role { get; set; }
         public string? Token { get; set; }
+        public bool IsActive { get; set; }
     }
 }

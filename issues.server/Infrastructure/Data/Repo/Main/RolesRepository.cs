@@ -1,13 +1,13 @@
 ﻿using Dapper;
 using issues.server.Infrastructure.Models.Main;
 using issues.server.Infrasructure.Models.Helpers;
-using issues.server.Infrastructure.Data.Interface;
 using issues.server.Infrastructure.Models.Helpers;
 using issues.server.Infrastructure.Data.Repo.Helpers;
+using issues.server.Infrastructure.Data.Interface.Main;
 
 namespace issues.server.Infrastructure.Data.Repo.Main
 {
-    public class RolesRepository : AppSettings, IBase<Roles>
+    public class RolesRepository : AppSettings, IRole
     {
         public async Task<FilteredList<Roles>?> FilteredList(Filter filter)
         {
@@ -26,7 +26,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     kw = $@"'%{filter.Keyword}%'";
                 }
 
-                string WhereClause = $@"WHERE t.name ilike '%{filter.Keyword}%'";
+                string WhereClause = $@"WHERE t.companyid = {filter.CompanyID} and t.name ilike '%{filter.Keyword}%'";
                 string query_count = $@"Select Count(t.id) from roles t {WhereClause}";
 
                 using (var con = GetConnection)
@@ -145,6 +145,32 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             {
                 await new LogsRepository().CreateLog(ex);
                 return false;
+            }
+        }
+
+        public async Task<IEnumerable<Roles>?> GetCompanyRoles(int ID)
+        {
+            try
+            {
+                string query = $@"
+                SELECT *
+                FROM roles t
+                WHERE t.companyid = {ID};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryAsync<Roles>(query);
+                        return res;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
             }
         }
     }

@@ -1,14 +1,14 @@
 ﻿using issues.server.Infrastructure.Models.Main;
 using issues.server.Infrasructure.Models.Helpers;
-using issues.server.Infrastructure.Data.Interface;
 using issues.server.Infrastructure.Data.Repo.Main;
 using issues.server.Infrastructure.Models.Helpers;
+using issues.server.Infrastructure.Data.Interface.Main;
 
 namespace issues.server.Infrastructure.Data.Managers.Main
 {
-    public class RolesManager : AppSettings, IBase<Roles>
+    public class RolesManager : AppSettings, IRole
     {
-        private readonly IBase<Roles> _repo;
+        private readonly IRole _repo;
         public RolesManager()
         {
             _repo = new RolesRepository();
@@ -27,6 +27,11 @@ namespace issues.server.Infrastructure.Data.Managers.Main
         public async Task<Roles?> Get(int ID)
         {
             return await _repo.Get(ID);
+        }
+
+        public async Task<IEnumerable<Roles>?> GetCompanyRoles(int ID)
+        {
+            return await _repo.GetCompanyRoles(ID);
         }
 
         public async Task<Roles?> Manage(Roles entity)

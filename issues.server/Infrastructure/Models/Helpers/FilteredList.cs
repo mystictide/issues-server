@@ -12,12 +12,14 @@
         public Filter()
         {
             ID = 0;
+            CompanyID = 0;
             Keyword = "";
-            pageSize = 2;
+            pageSize = 14;
             page = 1;
             SortBy = "desc";
         }
         public int? ID { get; set; }
+        public int? CompanyID { get; set; }
         public string? Keyword { get; set; }
         public string? SortBy { get; set; }
         public int page { get; set; }

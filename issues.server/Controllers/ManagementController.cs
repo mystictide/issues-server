@@ -46,5 +46,41 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("user")]
+        public async Task<IActionResult> ManageUser([FromBody] Users entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var user = await new UserManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (user != null)
+                    {
+                        if (CompanyID == user?.Company.ID)
+                        {
+                            var result = await new UserManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity.Company?.ID)
+                        {
+                            var result = await new UserManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }

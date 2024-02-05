@@ -19,7 +19,28 @@ namespace issues.server.Controllers
             {
                 if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
                 {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
                     var result = await new RolesManager().FilteredList(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("users")]
+        public async Task<IActionResult> FilterUsers([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new UserManager().FilteredList(filter);
                     return Ok(result);
                 }
                 return StatusCode(401, "Authorization failed");
