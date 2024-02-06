@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using issues.server.Infrastructure.Helpers;
 using issues.server.Infrastructure.Models.Main;
-using issues.server.Infrastructure.Models.Helpers;
 using issues.server.Infrastructure.Models.Response;
 using issues.server.Infrastructure.Data.Managers.Auth;
 
@@ -77,19 +76,21 @@ namespace issues.server.Controllers
 
         [HttpPost]
         [Route("cmail")]
-        public async Task<IActionResult> CheckExistingEmail([FromBody] EmailCheck entity)
+        public async Task<IActionResult> CheckExistingEmail([FromBody] Dictionary<string, string> data)
         {
             try
             {
                 bool exists;
-                var userID = AuthHelpers.CurrentUserID(HttpContext);
-                if (userID < 1)
+                string Email = data["email"];
+                bool Company = bool.Parse(data["company"]);
+                var UserID = AuthHelpers.CurrentUserID(HttpContext);
+                if (UserID < 1)
                 {
-                    exists = await new AuthManager().CheckEmail(entity.Company, entity.Email, null);
+                    exists = await new AuthManager().CheckEmail(Company, Email, null);
                 }
                 else
                 {
-                    exists = await new AuthManager().CheckEmail(entity.Company, entity.Email, userID);
+                    exists = await new AuthManager().CheckEmail(Company, Email, UserID);
                 }
                 return Ok(exists);
             }
