@@ -35,5 +35,55 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("project")]
+        public async Task<IActionResult> ArchiveProject([FromBody] Projects entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var project = await new ProjectsManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (CompanyID == project?.CompanyID)
+                    {
+                        var result = await new ProjectsManager().Archive(entity);
+                        return Ok(result);
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("issue")]
+        public async Task<IActionResult> ArchiveIssue([FromBody] Issues entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var issue = await new IssuesManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (CompanyID == issue?.Project?.CompanyID)
+                    {
+                        var result = await new IssuesManager().Archive(entity);
+                        return Ok(result);
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }

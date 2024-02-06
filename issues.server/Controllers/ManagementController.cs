@@ -82,5 +82,77 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("project")]
+        public async Task<IActionResult> ManageProject([FromBody] Projects entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var project = await new ProjectsManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (project != null)
+                    {
+                        if (CompanyID == project?.CompanyID)
+                        {
+                            var result = await new ProjectsManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity.CompanyID)
+                        {
+                            var result = await new ProjectsManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("issue")]
+        public async Task<IActionResult> ManageIssue([FromBody] Issues entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var issue = await new IssuesManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (issue != null)
+                    {
+                        if (CompanyID == issue?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().Manage(entity);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }

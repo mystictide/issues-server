@@ -55,6 +55,54 @@ namespace issues.server.Controllers
         }
 
         [HttpGet]
+        [Route("project")]
+        public async Task<IActionResult> GetProject([FromQuery] int ID)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var project = await new ProjectsManager().Get(ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (CompanyID == project?.CompanyID)
+                    {
+                        return Ok(project);
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("issue")]
+        public async Task<IActionResult> GetIssue([FromQuery] int ID)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var issue = await new IssuesManager().Get(ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (CompanyID == issue?.Project?.CompanyID)
+                    {
+                        return Ok(issue);
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("user")]
         public async Task<IActionResult> GetUser([FromQuery] int ID)
         {
@@ -69,6 +117,26 @@ namespace issues.server.Controllers
                         return Ok(user);
                     }
                     return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var users = await new UserManager().GetCompanyUsers(CompanyID);
+                    return Ok(users);
                 }
                 return StatusCode(401, "Authorization failed");
             }

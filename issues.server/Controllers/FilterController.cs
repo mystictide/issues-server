@@ -49,6 +49,44 @@ namespace issues.server.Controllers
             {
                 return StatusCode(401, ex.Message);
             }
+        }        
+        [HttpPost]
+        [Route("projects")]
+        public async Task<IActionResult> FilterProjects([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new ProjectsManager().FilteredList(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }    
+        [HttpPost]
+        [Route("issues")]
+        public async Task<IActionResult> FilterIssues([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new IssuesManager().FilteredList(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
         }
     }
 }
