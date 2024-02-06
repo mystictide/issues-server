@@ -79,6 +79,26 @@ namespace issues.server.Controllers
         }
 
         [HttpGet]
+        [Route("projects")]
+        public async Task<IActionResult> GetProjects()
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var projects = await new ProjectsManager().GetCompanyProjects(CompanyID);
+                    return Ok(projects);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("issue")]
         public async Task<IActionResult> GetIssue([FromQuery] int ID)
         {

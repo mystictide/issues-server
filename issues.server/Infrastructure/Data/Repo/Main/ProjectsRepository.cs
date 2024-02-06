@@ -102,6 +102,32 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             }
         }
 
+        public async Task<IEnumerable<Projects>?> GetCompanyProjects(int ID)
+        {
+            try
+            {
+                string query = $@"
+                SELECT *
+                FROM projects t
+                WHERE t.companyid = {ID};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryAsync<Projects>(query);
+                        return res;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
         public async Task<Projects?> Manage(Projects entity)
         {
             try

@@ -1,4 +1,6 @@
-﻿namespace issues.server.Infrastructure.Models.Main
+﻿using issues.server.Infrastructure.Models.Response;
+
+namespace issues.server.Infrastructure.Models.Main
 {
     public class Issues
     {
@@ -9,8 +11,8 @@
         public Types Type { get; set; }
         public States Status { get; set; }
         public Priorities Priority { get; set; }
-        public Users? CreatedBy { get; set; }
-        public List<Users>? AssignedTo { get; set; }
+        public UserResponse? CreatedBy { get; set; }
+        public List<UserResponse>? AssignedTo { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }

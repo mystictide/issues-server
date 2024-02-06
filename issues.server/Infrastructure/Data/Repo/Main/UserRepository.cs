@@ -184,15 +184,20 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             try
             {
                 string query = $@"
-                SELECT *
+                SELECT t.id, t.firstname, t.lastname, r.*
                 FROM users t
+                left join roles r on r.id = t.roleid
                 WHERE t.companyid = {ID};";
 
                 using (var con = GetConnection)
                 {
                     if (ID > 0)
                     {
-                        var res = await con.QueryAsync<Users>(query);
+                        var res = await con.QueryAsync<Users, Roles, Users>(query, (u, r) =>
+                        {
+                            u.Role = r;
+                            return u;
+                        }, splitOn: "id");
                         return res;
                     }
                     return null;

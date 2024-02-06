@@ -50,6 +50,7 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }        
+
         [HttpPost]
         [Route("projects")]
         public async Task<IActionResult> FilterProjects([FromBody] Filter filter)
@@ -69,6 +70,7 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }    
+
         [HttpPost]
         [Route("issues")]
         public async Task<IActionResult> FilterIssues([FromBody] Filter filter)

@@ -103,7 +103,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 using (var connection = GetConnection)
                 {
                     var res = await connection.QueryFirstOrDefaultAsync<Roles>(query);
-                    query = $@"DELETE from roleattributes where roleid = {res.ID};";
+                    query = $@"DELETE from roleattributes where roleid = {res?.ID};";
                     await connection.QueryFirstOrDefaultAsync<int>(query);
                     var atts = new List<int>();
                     foreach (var item in entity.Attributes)

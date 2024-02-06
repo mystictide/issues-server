@@ -28,6 +28,11 @@ namespace issues.server.Infrastructure.Data.Managers.Main
             return await _repo.Get(ID);
         }
 
+        public async Task<IEnumerable<Projects>?> GetCompanyProjects(int ID)
+        {
+            return await _repo.GetCompanyProjects(ID);
+        }
+
         public async Task<Projects?> Manage(Projects entity)
         {
             return await _repo.Manage(entity);
