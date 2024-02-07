@@ -4,7 +4,7 @@ namespace issues.server.Infrastructure.Models.Response
 {
     public class UserResponse
     {
-        public int ID { get; set; }
+        public int ID { get; set; } 
         public Companies? Company { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

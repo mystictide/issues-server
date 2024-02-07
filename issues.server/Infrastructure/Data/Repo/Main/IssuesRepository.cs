@@ -38,19 +38,17 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             try
             {
                 var filterModel = new Issues();
+                string project = filter.ProjectID > 0 ? $"t.projectid = {filter.ProjectID}" : "t.projectid notnull";
+                string type = filter.Type > 0 ? $"t.type = {filter.Type}" : "t.type notnull";
+                string status = filter.Status > 0 ? $"t.status = {filter.Status}" : "t.status notnull";
+                string priority = filter.Priority > 0 ? $"t.priority = {filter.Priority}" : "t.priority notnull";
                 FilteredList<Issues> request = new FilteredList<Issues>()
                 {
                     filter = filter,
                     filterModel = filterModel,
                 };
                 FilteredList<Issues> result = new FilteredList<Issues>();
-                string kw = "''";
-                if (filter.Keyword != null)
-                {
-                    kw = $@"'%{filter.Keyword}%'";
-                }
-
-                string WhereClause = $@"WHERE t.projectid in (select id from projects p where p.companyid = {filter.CompanyID}) and t.title ilike '%{filter.Keyword}%'";
+                string WhereClause = $@"WHERE t.projectid in (select id from projects p where p.companyid = {filter.CompanyID}) and {project} and {type} and {status} and {priority} and t.title ilike '%{filter.Keyword}%'";
                 string query_count = $@"Select Count(t.id) from issues t {WhereClause}";
 
                 using (var con = GetConnection)
@@ -98,15 +96,31 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             try
             {
                 string query = $@"
-                SELECT *
+                SELECT t.id, t.createdBy as CreatedByID, t.projectid as ProjectID, t.title, t.description, t.type, t.status, t.priority, t.createddate, t.enddate, t.isactive
                 FROM issues t
                 WHERE t.id = {ID};";
+
+                string aQuery = $@"
+                Select *
+                From users t
+                WHERE t.id in (select i.userid from issueassignedusers i where i.issueid = {ID});";
 
                 using (var con = GetConnection)
                 {
                     if (ID > 0)
                     {
                         var res = await con.QueryFirstOrDefaultAsync<Issues>(query);
+                        string pQuery = $@"
+                        Select *
+                        From projects t
+                        WHERE t.id = {res?.ProjectID};";
+                        res.Project = await con.QueryFirstOrDefaultAsync<Projects>(pQuery);
+                        string cQuery = $@"
+                        Select *
+                        From users t
+                        WHERE t.id = {res?.CreatedByID};";
+                        res.CreatedBy = await con.QueryFirstOrDefaultAsync<UserResponse>(cQuery);
+                        res.AssignedTo = (List<UserResponse>?)await con.QueryAsync<UserResponse>(aQuery);
                         return res;
                     }
                     return null;
