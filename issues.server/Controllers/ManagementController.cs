@@ -169,7 +169,7 @@ namespace issues.server.Controllers
                     {
                         if (CompanyID == issue?.Project?.CompanyID)
                         {
-                            var result = await new IssuesManager().ManageType((int)issue.Type);
+                            var result = await new IssuesManager().ManageType(issue.ID, (int)entity.Type);
                             return Ok(result);
                         }
                     }
@@ -177,7 +177,7 @@ namespace issues.server.Controllers
                     {
                         if (CompanyID == entity?.Project?.CompanyID)
                         {
-                            var result = await new IssuesManager().ManageType((int)issue.Type);
+                            var result = await new IssuesManager().ManageType(issue.ID, (int)entity.Type);
                             return Ok(result);
                         }
                     }
@@ -205,7 +205,7 @@ namespace issues.server.Controllers
                     {
                         if (CompanyID == issue?.Project?.CompanyID)
                         {
-                            var result = await new IssuesManager().ManageStatus((int)issue.Status);
+                            var result = await new IssuesManager().ManageStatus(issue.ID, (int)entity.Status);
                             return Ok(result);
                         }
                     }
@@ -213,7 +213,7 @@ namespace issues.server.Controllers
                     {
                         if (CompanyID == entity?.Project?.CompanyID)
                         {
-                            var result = await new IssuesManager().ManageStatus((int)issue.Status);
+                            var result = await new IssuesManager().ManageStatus(issue.ID, (int)entity.Status);
                             return Ok(result);
                         }
                     }
@@ -241,7 +241,7 @@ namespace issues.server.Controllers
                     {
                         if (CompanyID == issue?.Project?.CompanyID)
                         {
-                            var result = await new IssuesManager().ManagePriority((int)issue.Priority);
+                            var result = await new IssuesManager().ManagePriority(issue.ID, (int)entity.Priority);
                             return Ok(result);
                         }
                     }
@@ -249,7 +249,7 @@ namespace issues.server.Controllers
                     {
                         if (CompanyID == entity?.Project?.CompanyID)
                         {
-                            var result = await new IssuesManager().ManagePriority((int)issue.Priority);
+                            var result = await new IssuesManager().ManagePriority(issue.ID, (int)entity.Priority);
                             return Ok(result);
                         }
                     }

@@ -34,19 +34,19 @@ namespace issues.server.Infrastructure.Data.Managers.Main
             return await _repo.Manage(entity);
         }
 
-        public async Task<int?> ManagePriority(int priority)
+        public async Task<int?> ManagePriority(int ID, int priority)
         {
-            return await _repo.ManagePriority(priority);
+            return await _repo.ManagePriority(ID, priority);
         }
 
-        public async Task<int?> ManageStatus(int status)
+        public async Task<int?> ManageStatus(int ID, int status)
         {
-            return await _repo.ManageStatus(status);
+            return await _repo.ManageStatus(ID, status);
         }
 
-        public async Task<int?> ManageType(int type)
+        public async Task<int?> ManageType(int ID, int type)
         {
-            return await _repo.ManageType(type);
+            return await _repo.ManageType(ID, type);
         }
     }
 }

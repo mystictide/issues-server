@@ -191,11 +191,11 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             }
         }
 
-        public async Task<int?> ManagePriority(int priority)
+        public async Task<int?> ManagePriority(int ID, int priority)
         {
             try
             {
-                string query = $@"UPDATE SET priority =  {priority} RETURNING priority;";
+                string query = $@"UPDATE issues SET priority =  {priority} where id = {ID}  RETURNING priority;";
 
                 using (var connection = GetConnection)
                 {
@@ -210,11 +210,11 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             }
         }
 
-        public async Task<int?> ManageStatus(int status)
+        public async Task<int?> ManageStatus(int ID, int status)
         {
             try
             {
-                string query = $@"UPDATE SET status =  {status} RETURNING status;";
+                string query = $@"UPDATE issues SET status =  {status} where id = {ID}  RETURNING status;";
 
                 using (var connection = GetConnection)
                 {
@@ -229,11 +229,11 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             }
         }
 
-        public async Task<int?> ManageType(int type)
+        public async Task<int?> ManageType(int ID, int type)
         {
             try
             {
-                string query = $@"UPDATE SET type =  {type} RETURNING type;";
+                string query = $@"UPDATE issues SET type = {type} where id = {ID} RETURNING type;";
 
                 using (var connection = GetConnection)
                 {
