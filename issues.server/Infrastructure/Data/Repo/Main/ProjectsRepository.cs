@@ -49,7 +49,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     kw = $@"'%{filter.Keyword}%'";
                 }
 
-                string WhereClause = $@"WHERE t.companyid = {filter.CompanyID} and t.name ilike '%{filter.Keyword}%'";
+                string WhereClause = $@"WHERE t.companyid = {filter.CompanyID} and t.name ilike '%{filter.Keyword}%' and t.isactive = {filter.IsActive}";
                 string query_count = $@"Select Count(t.id) from projects t {WhereClause}";
 
                 using (var con = GetConnection)

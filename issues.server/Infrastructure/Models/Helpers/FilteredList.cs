@@ -21,6 +21,7 @@
             pageSize = 14;
             page = 1;
             SortBy = "desc";
+            IsActive = true;
         }
         public int? ID { get; set; }
         public int? CompanyID { get; set; }
@@ -30,6 +31,7 @@
         public int? Priority { get; set; }
         public string? Keyword { get; set; }
         public string? SortBy { get; set; }
+        public bool IsActive { get; set; }
         public int page { get; set; }
         public int pageSize { get; set; }
         public Page? pager { get; set; }

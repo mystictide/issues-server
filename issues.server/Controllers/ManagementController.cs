@@ -154,5 +154,113 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("issue/type")]
+        public async Task<IActionResult> ManageIssueType([FromBody] Issues entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var issue = await new IssuesManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (issue != null)
+                    {
+                        if (CompanyID == issue?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageType((int)issue.Type);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageType((int)issue.Type);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("issue/status")]
+        public async Task<IActionResult> ManageIssueStatus([FromBody] Issues entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var issue = await new IssuesManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (issue != null)
+                    {
+                        if (CompanyID == issue?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageStatus((int)issue.Status);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageStatus((int)issue.Status);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("issue/priority")]
+        public async Task<IActionResult> ManageIssuePriority([FromBody] Issues entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var issue = await new IssuesManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (issue != null)
+                    {
+                        if (CompanyID == issue?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManagePriority((int)issue.Priority);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManagePriority((int)issue.Priority);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }

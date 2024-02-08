@@ -33,5 +33,20 @@ namespace issues.server.Infrastructure.Data.Managers.Main
         {
             return await _repo.Manage(entity);
         }
+
+        public async Task<int?> ManagePriority(int priority)
+        {
+            return await _repo.ManagePriority(priority);
+        }
+
+        public async Task<int?> ManageStatus(int status)
+        {
+            return await _repo.ManageStatus(status);
+        }
+
+        public async Task<int?> ManageType(int type)
+        {
+            return await _repo.ManageType(type);
+        }
     }
 }

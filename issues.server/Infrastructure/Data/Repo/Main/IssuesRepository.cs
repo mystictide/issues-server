@@ -48,8 +48,8 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     filterModel = filterModel,
                 };
                 FilteredList<Issues> result = new FilteredList<Issues>();
-                string WhereClause = $@"WHERE t.projectid in (select id from projects p where p.companyid = {filter.CompanyID}) and {project} and {type} and {status} and {priority} and t.title ilike '%{filter.Keyword}%'";
-                string query_count = $@"Select Count(t.id) from issues t {WhereClause}";
+                string WhereClause = $@"WHERE p.isactive = True and t.projectid in (select id from projects p where p.companyid = {filter.CompanyID}) and {project} and {type} and {status} and {priority} and t.title ilike '%{filter.Keyword}%' and t.isactive = {filter.IsActive}";
+                string query_count = $@"Select Count(t.id) from issues t inner join projects p on p.id = t.projectid  {WhereClause}";
 
                 using (var con = GetConnection)
                 {
@@ -60,6 +60,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     FROM issues t
                     left join users u on u.id = t.createdby
                     left join users i on i.id in (select iau.userid from issueassignedusers iau where iau.issueid = t.id)
+                    inner join projects p on p.id = t.projectid 
                     {WhereClause}
                     order by t.id {request.filter.SortBy}
                     OFFSET {request.filter.pager.StartIndex} ROWS
@@ -180,6 +181,63 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     res.AssignedTo = new List<UserResponse>();
                     res.CreatedBy.ID = entity.CreatedBy.ID;
                     res.AssignedTo = entity.AssignedTo;
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<int?> ManagePriority(int priority)
+        {
+            try
+            {
+                string query = $@"UPDATE SET priority =  {priority} RETURNING priority;";
+
+                using (var connection = GetConnection)
+                {
+                    var res = await connection.QueryFirstOrDefaultAsync<int>(query);
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<int?> ManageStatus(int status)
+        {
+            try
+            {
+                string query = $@"UPDATE SET status =  {status} RETURNING status;";
+
+                using (var connection = GetConnection)
+                {
+                    var res = await connection.QueryFirstOrDefaultAsync<int>(query);
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<int?> ManageType(int type)
+        {
+            try
+            {
+                string query = $@"UPDATE SET type =  {type} RETURNING type;";
+
+                using (var connection = GetConnection)
+                {
+                    var res = await connection.QueryFirstOrDefaultAsync<int>(query);
                     return res;
                 }
             }
