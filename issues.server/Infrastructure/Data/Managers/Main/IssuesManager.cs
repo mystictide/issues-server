@@ -48,5 +48,25 @@ namespace issues.server.Infrastructure.Data.Managers.Main
         {
             return await _repo.ManageType(ID, type);
         }
+
+        public async Task<Comments?> GetComment(int ID)
+        {
+            return await _repo.GetComment(ID);
+        }
+
+        public async Task<Comments?> ManageComment(Comments entity)
+        {
+            return await _repo.ManageComment(entity);
+        }
+
+        public async Task<bool?> DeleteComment(Comments entity)
+        {
+            return await _repo.DeleteComment(entity);
+        }
+
+        public async Task<FilteredList<Comments>?> FilteredComments(Filter filter)
+        {
+            return await _repo.FilteredComments(filter);
+        }
     }
 }

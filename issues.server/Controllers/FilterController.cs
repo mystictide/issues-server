@@ -90,5 +90,25 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("comments")]
+        public async Task<IActionResult> FilterComments([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new IssuesManager().FilteredComments(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@
             ID = 0;
             CompanyID = 0;
             ProjectID = 0;
+            IssueID = 0;
             Type = 0;
             Status = 0;
             Priority = 0;
@@ -26,6 +27,7 @@
         public int? ID { get; set; }
         public int? CompanyID { get; set; }
         public int? ProjectID { get; set; }
+        public int? IssueID { get; set; }
         public int? Type { get; set; }
         public int? Status { get; set; }
         public int? Priority { get; set; }

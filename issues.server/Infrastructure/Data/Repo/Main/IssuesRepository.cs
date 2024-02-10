@@ -56,28 +56,17 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     result.totalItems = await con.QueryFirstOrDefaultAsync<int>(query_count);
                     request.filter.pager = new Page(result.totalItems, request.filter.pageSize, request.filter.page);
                     string query = $@"
-                    SELECT t.id, t.projectid, t.title, t.description, t.type, t.status, t.priority, t.createddate, t.enddate, t.isactive, u.id, u.firstname, u.lastname, i.*
+                    SELECT t.id, t.projectid, t.title, t.description, t.type, t.status, t.priority, t.createddate, t.enddate, t.isactive, u.id, u.firstname, u.lastname
                     FROM issues t
                     left join users u on u.id = t.createdby
-                    left join users i on i.id in (select iau.userid from issueassignedusers iau where iau.issueid = t.id)
                     inner join projects p on p.id = t.projectid 
                     {WhereClause}
                     order by t.id {request.filter.SortBy}
                     OFFSET {request.filter.pager.StartIndex} ROWS
                     FETCH NEXT {request.filter.pageSize} ROWS ONLY";
-                    var issuesDictionary = new Dictionary<int, Issues>();
-                    result.data = await con.QueryAsync<Issues, UserResponse, UserResponse, Issues>(query, (i, u, a) =>
+                    result.data = await con.QueryAsync<Issues, UserResponse, Issues>(query, (i, u) =>
                     {
                         i.CreatedBy = u ?? new UserResponse();
-                        Issues issueEntry;
-
-                        if (!issuesDictionary.TryGetValue(i.ID, out issueEntry))
-                        {
-                            issueEntry = i;
-                            issueEntry.AssignedTo = new List<UserResponse>();
-                            issuesDictionary.Add(issueEntry.ID, issueEntry);
-                        }
-                        issueEntry?.AssignedTo?.Add(a);
                         return i;
                     }, splitOn: "id");
                     result.filter = request.filter;
@@ -239,6 +228,124 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 {
                     var res = await connection.QueryFirstOrDefaultAsync<int>(query);
                     return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<Comments?> GetComment(int ID)
+        {
+            try
+            {
+                string query = $@"
+                SELECT *
+                FROM comments t
+                WHERE t.id = {ID};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryFirstOrDefaultAsync<Comments>(query);
+                        return res;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<Comments?> ManageComment(Comments entity)
+        {
+            try
+            {
+                dynamic identity = entity.ID > 0 ? entity.ID : "default";
+
+                if (entity.Body.Contains("'"))
+                {
+                    entity.Body = entity.Body.Replace("'", "''");
+                }
+
+                string query = $@"
+                INSERT INTO comments (id, issueid, userid, body, createddate, isactive)
+	 	        VALUES ({identity}, {entity.IssueID}, '{entity.User.ID}', '{entity.Body}', current_timestamp, true)
+                ON CONFLICT (id) DO UPDATE 
+                SET body = '{entity.Body}'
+                RETURNING id;";
+
+                using (var connection = GetConnection)
+                {
+                    var res = await connection.QueryFirstOrDefaultAsync<Comments>(query);
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<bool?> DeleteComment(Comments entity)
+        {
+            try
+            {
+                string query = $@"DELETE from comments where id = {entity?.ID};";
+                using (var connection = GetConnection)
+                {
+                    var res = await connection.QueryFirstOrDefaultAsync<bool>(query);
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<FilteredList<Comments>?> FilteredComments(Filter filter)
+        {
+            try
+            {
+                var filterModel = new Comments();
+                FilteredList<Comments> request = new FilteredList<Comments>()
+                {
+                    filter = filter,
+                    filterModel = filterModel,
+                };
+                FilteredList<Comments> result = new FilteredList<Comments>();
+                string WhereClause = $@"WHERE t.issueid = {filter.IssueID} and t.isactive = {filter.IsActive}";
+                string query_count = $@"Select Count(t.id) from comments t {WhereClause}";
+
+                using (var con = GetConnection)
+                {
+                    result.totalItems = await con.QueryFirstOrDefaultAsync<int>(query_count);
+                    request.filter.pager = new Page(result.totalItems, request.filter.pageSize, request.filter.page);
+                    string query = $@"
+                    SELECT t.*, u.*
+                    FROM comments t
+                    left join users u on u.id = t.userid
+                    {WhereClause}
+                    order by t.id {request.filter.SortBy}
+                    OFFSET {request.filter.pager.StartIndex} ROWS
+                    FETCH NEXT {request.filter.pageSize} ROWS ONLY";
+                    result.data = await con.QueryAsync<Comments, UserResponse, Comments>(query, (i, u) =>
+                    {
+                        i.User = u ?? new UserResponse();
+                        return i;
+                    }, splitOn: "id");
+                    result.filter = request.filter;
+                    result.filterModel = request.filterModel;
+                    return result;
                 }
             }
             catch (Exception ex)

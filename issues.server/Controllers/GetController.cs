@@ -123,6 +123,31 @@ namespace issues.server.Controllers
         }
 
         [HttpGet]
+        [Route("comment")]
+        public async Task<IActionResult> GetComment([FromQuery] int ID, [FromQuery] int IssueID)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                {
+                    var issue = await new IssuesManager().Get(IssueID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (CompanyID == issue?.Project?.CompanyID)
+                    {
+                        var comment = await new IssuesManager().GetComment(ID);
+                        return Ok(comment);
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("user")]
         public async Task<IActionResult> GetUser([FromQuery] int ID)
         {

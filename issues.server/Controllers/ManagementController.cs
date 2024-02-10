@@ -262,5 +262,41 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("comment")]
+        public async Task<IActionResult> ManageComment([FromBody] Comments entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1]))
+                {
+                    var issue = await new IssuesManager().Get(entity.IssueID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (issue != null)
+                    {
+                        if (CompanyID == issue?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageComment(entity);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity.User?.Company?.ID)
+                        {
+                            var result = await new IssuesManager().ManageComment(entity);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }
