@@ -123,6 +123,33 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             }
         }
 
+        public async Task<IEnumerable<Issues>?> GetCompanyIssues(int ID, int? limit)
+        {
+            try
+            {
+                string limited = limit.HasValue ? $"limit {limit}" : "";
+                string query = $@"
+                SELECT *
+                FROM issues t {limited}
+                WHERE t.isactive = true and t.projectid in (select p.id from projects p where p.companyid = {ID});";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryAsync<Issues>(query);
+                        return res;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
         public async Task<Issues?> Manage(Issues entity)
         {
             try
@@ -170,6 +197,32 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     res.AssignedTo = new List<UserResponse>();
                     res.CreatedBy.ID = entity.CreatedBy.ID;
                     res.AssignedTo = entity.AssignedTo;
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<Issues?> ManageAssignedUsers(Issues entity)
+        {
+            try
+            {
+                string query = $@"DELETE from issueassignedusers where issueid = {entity?.ID};";
+                using (var connection = GetConnection)
+                {
+                    await connection.QueryFirstOrDefaultAsync<int>(query);
+                    foreach (var item in entity.AssignedTo)
+                    {
+                        query = $@"
+                        INSERT INTO issueassignedusers (id, issueid, userid)
+	 	                VALUES (default, {entity?.ID}, {item.ID});";
+                        await connection.QueryFirstOrDefaultAsync<UserResponse>(query);
+                    }
+                    var res = await Get(entity.ID);
                     return res;
                 }
             }

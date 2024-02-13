@@ -1,4 +1,5 @@
-﻿using issues.server.Infrastructure.Models.Main;
+﻿using System.Collections.Generic;
+using issues.server.Infrastructure.Models.Main;
 using issues.server.Infrasructure.Models.Helpers;
 using issues.server.Infrastructure.Data.Repo.Main;
 using issues.server.Infrastructure.Models.Helpers;
@@ -29,9 +30,19 @@ namespace issues.server.Infrastructure.Data.Managers.Main
             return await _repo.Get(ID);
         }
 
+        public async Task<IEnumerable<Issues>?> GetCompanyIssues(int ID, int? limit)
+        {
+            return await _repo.GetCompanyIssues(ID, limit);
+        }
+
         public async Task<Issues?> Manage(Issues entity)
         {
             return await _repo.Manage(entity);
+        }
+
+        public async Task<Issues?> ManageAssignedUsers(Issues entity)
+        {
+            return await _repo.ManageAssignedUsers(entity);
         }
 
         public async Task<int?> ManagePriority(int ID, int priority)

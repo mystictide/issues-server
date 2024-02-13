@@ -102,14 +102,15 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             }
         }
 
-        public async Task<IEnumerable<Projects>?> GetCompanyProjects(int ID)
+        public async Task<IEnumerable<Projects>?> GetCompanyProjects(int ID, int? limit)
         {
             try
             {
+                string limited = limit.HasValue ? $"limit {limit}" : "";
                 string query = $@"
                 SELECT *
-                FROM projects t
-                WHERE t.companyid = {ID};";
+                FROM projects t {limited}
+                WHERE t.companyid = {ID} and isactive = True;";
 
                 using (var con = GetConnection)
                 {

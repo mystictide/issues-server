@@ -28,9 +28,9 @@ namespace issues.server.Infrastructure.Data.Managers.Main
             return await _repo.Get(ID);
         }
 
-        public async Task<IEnumerable<Projects>?> GetCompanyProjects(int ID)
+        public async Task<IEnumerable<Projects>?> GetCompanyProjects(int ID, int? limit)
         {
-            return await _repo.GetCompanyProjects(ID);
+            return await _repo.GetCompanyProjects(ID, limit);
         }
 
         public async Task<Projects?> Manage(Projects entity)

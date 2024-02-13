@@ -9,8 +9,6 @@ namespace issues.server.Controllers
     [Route("manage")]
     public class ManagementController : ControllerBase
     {
-        private static int[] AuthorizedRoles = [1, 2];
-
         [HttpPost]
         [Route("role")]
         public async Task<IActionResult> ManageRole([FromBody] Roles entity)
@@ -53,7 +51,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2]))
                 {
                     var user = await new UserManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -89,7 +87,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3]))
                 {
                     var project = await new ProjectsManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -125,7 +123,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3, 4]))
                 {
                     var issue = await new IssuesManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -156,12 +154,48 @@ namespace issues.server.Controllers
         }
 
         [HttpPost]
+        [Route("issue/users")]
+        public async Task<IActionResult> ManageAssignedUsers([FromBody] Issues entity)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 3, 4, 5]))
+                {
+                    var issue = await new IssuesManager().Get(entity.ID);
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    if (issue != null)
+                    {
+                        if (CompanyID == issue?.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageAssignedUsers(entity);
+                            return Ok(result);
+                        }
+                    }
+                    else
+                    {
+                        if (CompanyID == entity.Project?.CompanyID)
+                        {
+                            var result = await new IssuesManager().ManageAssignedUsers(entity);
+                            return Ok(result);
+                        }
+                    }
+                    return StatusCode(401, "Access denied");
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("issue/type")]
         public async Task<IActionResult> ManageIssueType([FromBody] Issues entity)
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3, 4]))
                 {
                     var issue = await new IssuesManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -197,7 +231,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3, 4]))
                 {
                     var issue = await new IssuesManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -233,7 +267,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3, 4]))
                 {
                     var issue = await new IssuesManager().Get(entity.ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -269,7 +303,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, [1]))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
                 {
                     var issue = await new IssuesManager().Get(entity.IssueID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);

@@ -8,15 +8,13 @@ namespace issues.server.Controllers
     [Route("get")]
     public class GetController : ControllerBase
     {
-        private static int[] AuthorizedRoles = [1];
-
         [HttpGet]
         [Route("role")]
         public async Task<IActionResult> GetRole([FromQuery] int ID)
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1]))
                 {
                     var role = await new RolesManager().Get(ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -40,7 +38,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2]))
                 {
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
                     var role = await new RolesManager().GetCompanyRoles(CompanyID);
@@ -60,7 +58,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3]))
                 {
                     var project = await new ProjectsManager().Get(ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -80,14 +78,14 @@ namespace issues.server.Controllers
 
         [HttpGet]
         [Route("projects")]
-        public async Task<IActionResult> GetProjects()
+        public async Task<IActionResult> GetProjects([FromQuery] int? limit)
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
                 {
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
-                    var projects = await new ProjectsManager().GetCompanyProjects(CompanyID);
+                    var projects = await new ProjectsManager().GetCompanyProjects(CompanyID, limit);
                     return Ok(projects);
                 }
                 return StatusCode(401, "Authorization failed");
@@ -104,7 +102,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 3, 4]))
                 {
                     var issue = await new IssuesManager().Get(ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -123,12 +121,32 @@ namespace issues.server.Controllers
         }
 
         [HttpGet]
+        [Route("issues")]
+        public async Task<IActionResult> GetIssues([FromQuery] int? limit)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var issues = await new IssuesManager().GetCompanyIssues(CompanyID, limit);
+                    return Ok(issues);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("comment")]
         public async Task<IActionResult> GetComment([FromQuery] int ID, [FromQuery] int IssueID)
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
                 {
                     var issue = await new IssuesManager().Get(IssueID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -153,7 +171,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2]))
                 {
                     var user = await new UserManager().Get(ID);
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
@@ -177,7 +195,7 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
                 {
                     var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
                     var users = await new UserManager().GetCompanyUsers(CompanyID);

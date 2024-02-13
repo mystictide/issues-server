@@ -4,6 +4,6 @@ namespace issues.server.Infrastructure.Data.Interface.Main
 {
     public interface IProject : IBase<Projects>
     {
-        Task<IEnumerable<Projects>?> GetCompanyProjects(int ID);
+        Task<IEnumerable<Projects>?> GetCompanyProjects(int ID, int? limit);
     }
 }
