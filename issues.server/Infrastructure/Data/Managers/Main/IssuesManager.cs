@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using static Dapper.SqlMapper;
+using System.Collections.Generic;
 using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Models.Stats;
 using issues.server.Infrasructure.Models.Helpers;
 using issues.server.Infrastructure.Data.Repo.Main;
 using issues.server.Infrastructure.Models.Helpers;
@@ -78,6 +80,11 @@ namespace issues.server.Infrastructure.Data.Managers.Main
         public async Task<FilteredList<Comments>?> FilteredComments(Filter filter)
         {
             return await _repo.FilteredComments(filter);
+        }
+
+        public async Task<IssueStats?> GetStatistics(int ID)
+        {
+            return await _repo.GetStatistics(ID);
         }
     }
 }

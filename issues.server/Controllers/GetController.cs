@@ -208,5 +208,45 @@ namespace issues.server.Controllers
                 return StatusCode(401, ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("stats/issues")]
+        public async Task<IActionResult> GetIssueStats()
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var users = await new IssuesManager().GetStatistics(CompanyID);
+                    return Ok(users);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("stats/projects")]
+        public async Task<IActionResult> GetProjectStats()
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var users = await new ProjectsManager().GetStatistics(CompanyID);
+                    return Ok(users);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
     }
 }

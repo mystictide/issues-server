@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Models.Stats;
 using issues.server.Infrasructure.Models.Helpers;
 using issues.server.Infrastructure.Models.Helpers;
 using issues.server.Infrastructure.Models.Response;
@@ -129,15 +130,20 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             {
                 string limited = limit.HasValue ? $"limit {limit}" : "";
                 string query = $@"
-                SELECT *
-                FROM issues t {limited}
-                WHERE t.isactive = true and t.projectid in (select p.id from projects p where p.companyid = {ID});";
+                SELECT t.id, t.projectid, t.title, t.description, t.type, t.status, t.priority, t.createddate, t.enddate, t.isactive, u.id, u.firstname, u.lastname
+                FROM issues t
+                left join users u on u.id = t.createdby
+                WHERE t.isactive = true and t.projectid in (select p.id from projects p where p.companyid = {ID}) {limited};";
 
                 using (var con = GetConnection)
                 {
                     if (ID > 0)
                     {
-                        var res = await con.QueryAsync<Issues>(query);
+                        var res = await con.QueryAsync<Issues, UserResponse, Issues>(query, (i, u) =>
+                           {
+                               i.CreatedBy = u ?? new UserResponse();
+                               return i;
+                           }, splitOn: "id");
                         return res;
                     }
                     return null;
@@ -399,6 +405,36 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     result.filter = request.filter;
                     result.filterModel = request.filterModel;
                     return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<IssueStats?> GetStatistics(int ID)
+        {
+            try
+            {
+                string query = $@"
+                SELECT t.*,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.type = 1) as BugsCount,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.type = 2) as FeaturesCount,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.type = 3) as EnhancementsCount,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.type = 4) as TasksCount
+                FROM projects t
+                WHERE t.isactive = true and t.companyid = {ID};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryFirstOrDefaultAsync<IssueStats>(query);
+                        return res;
+                    }
+                    return null;
                 }
             }
             catch (Exception ex)

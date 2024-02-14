@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Models.Stats;
 using issues.server.Infrasructure.Models.Helpers;
 using issues.server.Infrastructure.Models.Helpers;
 using issues.server.Infrastructure.Data.Repo.Helpers;
@@ -108,15 +109,45 @@ namespace issues.server.Infrastructure.Data.Repo.Main
             {
                 string limited = limit.HasValue ? $"limit {limit}" : "";
                 string query = $@"
-                SELECT *
-                FROM projects t {limited}
-                WHERE t.companyid = {ID} and isactive = True;";
+                SELECT t.*,
+                (select coalesce(firstname || ' ', '') || coalesce(lastname, '') from users u where u.id = t.assignedto) as Manager
+                FROM projects t
+                WHERE t.companyid = {ID} and isactive = True {limited};";
 
                 using (var con = GetConnection)
                 {
                     if (ID > 0)
                     {
                         var res = await con.QueryAsync<Projects>(query);
+                        return res;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<ProjectStats>?> GetStatistics(int ID)
+        {
+            try
+            {
+                string query = $@"
+                SELECT t.id, t.name, t.createddate, t.enddate,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.status = 1) as OpenIssues,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.status = 2) as ActiveIssues,
+                (select count(id) from issues bc where bc.projectid = t.id and bc.status = 3) as ClosedIssues
+                FROM projects t
+                WHERE t.isactive = true and t.companyid = {ID};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryAsync<ProjectStats>(query);
                         return res;
                     }
                     return null;

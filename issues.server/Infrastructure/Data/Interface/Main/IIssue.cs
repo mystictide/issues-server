@@ -1,4 +1,5 @@
 ﻿using issues.server.Infrastructure.Models.Main;
+using issues.server.Infrastructure.Models.Stats;
 using issues.server.Infrasructure.Models.Helpers;
 
 namespace issues.server.Infrastructure.Data.Interface.Main
@@ -6,6 +7,7 @@ namespace issues.server.Infrastructure.Data.Interface.Main
     public interface IIssue : IBase<Issues>
     {
         Task<IEnumerable<Issues>?> GetCompanyIssues(int ID, int? limit);
+        Task<IssueStats?> GetStatistics(int ID);
         Task<Issues?> ManageAssignedUsers(Issues entity);
         Task<int?> ManageType(int ID, int type);
         Task<int?> ManageStatus(int ID, int status);
