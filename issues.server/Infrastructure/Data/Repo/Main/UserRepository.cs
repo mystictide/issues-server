@@ -34,7 +34,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                       email = '{entity.Email}',
                       password = COALESCE('{entity.Password}', users.password),
                       roleid = {entity.Role.ID}
-                RETURNING *;";
+                RETURNING id;";
 
                 using (var connection = GetConnection)
                 {
@@ -170,6 +170,37 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     result.filter = request.filter;
                     result.filterModel = request.filterModel;
                     return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<Users>?> GetCompanyUsers(int ID)
+        {
+            try
+            {
+                string query = $@"
+                SELECT t.id, t.firstname, t.lastname, r.*
+                FROM users t
+                left join roles r on r.id = t.roleid
+                WHERE t.companyid = {ID};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryAsync<Users, Roles, Users>(query, (u, r) =>
+                        {
+                            u.Role = r;
+                            return u;
+                        }, splitOn: "id");
+                        return res;
+                    }
+                    return null;
                 }
             }
             catch (Exception ex)

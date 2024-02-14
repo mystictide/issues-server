@@ -1,16 +1,23 @@
-﻿namespace issues.server.Infrastructure.Models.Main
+﻿using Newtonsoft.Json;
+using issues.server.Infrastructure.Models.Response;
+
+namespace issues.server.Infrastructure.Models.Main
 {
     public class Issues
     {
         public int ID { get; set; }
+        [JsonIgnore]
+        public int? ProjectID { get; set; }
         public Projects? Project { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public Types Type { get; set; }
         public States Status { get; set; }
         public Priorities Priority { get; set; }
-        public Users? CreatedBy { get; set; }
-        public List<Users>? AssignedTo { get; set; }
+        [JsonIgnore]
+        public int? CreatedByID { get; set; }
+        public UserResponse? CreatedBy { get; set; }
+        public List<UserResponse>? AssignedTo { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }

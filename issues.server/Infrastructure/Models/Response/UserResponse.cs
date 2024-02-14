@@ -4,6 +4,7 @@ namespace issues.server.Infrastructure.Models.Response
 {
     public class UserResponse
     {
+
         public int ID { get; set; }
         public Companies? Company { get; set; }
         public string? FirstName { get; set; }
@@ -12,5 +13,10 @@ namespace issues.server.Infrastructure.Models.Response
         public Roles? Role { get; set; }
         public string? Token { get; set; }
         public bool IsActive { get; set; }
+        public string? Name
+        {
+            get { return FirstName + " " + LastName; }
+            set { }
+        }
     }
 }

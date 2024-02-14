@@ -16,7 +16,6 @@ namespace issues.server.Controllers
         {
             try
             {
-
                 var data = await new AuthManager().Register(company);
                 var userData = new CompanyResponse();
                 userData.ID = data.ID;

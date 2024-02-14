@@ -63,5 +63,10 @@ namespace issues.server.Infrastructure.Data.Managers.Main
         {
             return await _repo.FilteredList(filter);
         }
+
+        public async Task<IEnumerable<Users>?> GetCompanyUsers(int ID)
+        {
+            return await _repo.GetCompanyUsers(ID);
+        }
     }
 }

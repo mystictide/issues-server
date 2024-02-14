@@ -18,7 +18,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
             _repo = new AuthRepository();
         }
 
-        private string generateToken(int ID, List<int> Role)
+        private string generateToken(bool company, int ID, List<int> Role)
         {
             try
             {
@@ -27,6 +27,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new[] {
+                    new Claim("type", company.ToString()),
                     new Claim("id", ID.ToString()),
                     new Claim("role", JsonSerializer.Serialize(Role))
                 }),
@@ -65,7 +66,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 var admin = new Companies();
                 admin.Name = entity.Name;
                 admin.Email = entity.Email;
-                admin.Token = generateToken(result.ID, [1]);
+                admin.Token = generateToken(true, result.ID, [1]);
                 return admin;
             }
             throw new Exception("Server error.");
@@ -86,7 +87,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 admin.ID = result.ID;
                 admin.Name = result.Name;
                 admin.Email = result.Email;
-                admin.Token = generateToken(result.ID, [1]);
+                admin.Token = generateToken(true, result.ID, [1]);
                 return admin;
             }
 
@@ -109,7 +110,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 user.FirstName = result.FirstName;
                 user.LastName = result.LastName;
                 user.Email = result.Email;
-                user.Token = generateToken(result.ID, result.Role.Attributes);
+                user.Token = generateToken(false, result.Company.ID, result.Role.Attributes);
                 return user;
             }
 

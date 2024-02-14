@@ -9,15 +9,13 @@ namespace issues.server.Controllers
     [Route("filter")]
     public class FilterController : ControllerBase
     {
-        private static int[] AuthorizedRoles = [1];
-
         [HttpPost]
         [Route("roles")]
         public async Task<IActionResult> FilterRoles([FromBody] Filter filter)
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1]))
                 {
                     filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
                     var result = await new RolesManager().FilteredList(filter);
@@ -37,10 +35,70 @@ namespace issues.server.Controllers
         {
             try
             {
-                if (AuthHelpers.Authorize(HttpContext, AuthorizedRoles))
+                if (AuthHelpers.Authorize(HttpContext, [1, 2]))
                 {
                     filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
                     var result = await new UserManager().FilteredList(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("projects")]
+        public async Task<IActionResult> FilterProjects([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new ProjectsManager().FilteredList(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("issues")]
+        public async Task<IActionResult> FilterIssues([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new IssuesManager().FilteredList(filter);
+                    return Ok(result);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("comments")]
+        public async Task<IActionResult> FilterComments([FromBody] Filter filter)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    filter.CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var result = await new IssuesManager().FilteredComments(filter);
                     return Ok(result);
                 }
                 return StatusCode(401, "Authorization failed");
