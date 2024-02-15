@@ -32,7 +32,6 @@ namespace issues.server.Infrastructure.Data.Repo.Auth
                 return null;
             }
         }
-
         public async Task<Companies>? CompanyLogin(Companies entity)
         {
             try
@@ -63,14 +62,28 @@ namespace issues.server.Infrastructure.Data.Repo.Auth
                 string WhereClause = $"WHERE (t.email = '{entity.Email}');";
 
                 string query = $@"
-                SELECT *
+                SELECT t.*, c.id, c.name, t.roleid as id
                 FROM users t
+                left join companies c on c.id = t.companyid
                 {WhereClause};";
 
                 using (var con = GetConnection)
                 {
-                    var res = await con.QueryFirstOrDefaultAsync<Users>(query);
-                    return res;
+                    var res = await con.QueryAsync<Users, Companies, int, Users>(query, (i, u, r) =>
+                    {
+                        i.Company = u ?? new Companies();
+                        i.Role = new Roles();
+                        i.Role.ID = r;
+                        return i;
+                    }, splitOn: "id");
+                    var result = res.FirstOrDefault();
+                    query = $@"
+                    SELECT t.attributeid
+                    FROM roleattributes t
+                    where t.roleid = {result.Role.ID};";
+                    var attrs = await con.QueryAsync<int>(query);
+                    result.Role.Attributes = attrs.ToList();
+                    return result;
                 }
             }
             catch (Exception ex)
@@ -79,7 +92,6 @@ namespace issues.server.Infrastructure.Data.Repo.Auth
                 return null;
             }
         }
-
         public async Task<bool> CheckEmail(bool company, string Email, int? UserID)
         {
             DynamicParameters param = new DynamicParameters();
