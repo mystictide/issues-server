@@ -1,6 +1,4 @@
-﻿using static Dapper.SqlMapper;
-using System.Collections.Generic;
-using issues.server.Infrastructure.Models.Main;
+﻿using issues.server.Infrastructure.Models.Main;
 using issues.server.Infrastructure.Models.Stats;
 using issues.server.Infrasructure.Models.Helpers;
 using issues.server.Infrastructure.Data.Repo.Main;
@@ -85,6 +83,11 @@ namespace issues.server.Infrastructure.Data.Managers.Main
         public async Task<IssueStats?> GetStatistics(int ID)
         {
             return await _repo.GetStatistics(ID);
+        }
+
+        public async Task<IEnumerable<Comments>?> GetCompanyComments(int ID, int? limit)
+        {
+            return await _repo.GetCompanyComments(ID, limit);
         }
     }
 }

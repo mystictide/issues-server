@@ -112,7 +112,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 SELECT t.*,
                 (select coalesce(firstname || ' ', '') || coalesce(lastname, '') from users u where u.id = t.assignedto) as Manager
                 FROM projects t
-                WHERE t.companyid = {ID} and isactive = True {limited};";
+                WHERE t.companyid = {ID} and isactive = True order by t.createddate desc {limited};";
 
                 using (var con = GetConnection)
                 {

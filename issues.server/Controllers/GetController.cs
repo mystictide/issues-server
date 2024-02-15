@@ -166,6 +166,26 @@ namespace issues.server.Controllers
         }
 
         [HttpGet]
+        [Route("comments")]
+        public async Task<IActionResult> GetComments([FromQuery] int? limit)
+        {
+            try
+            {
+                if (AuthHelpers.Authorize(HttpContext, [1, 2, 3, 4, 5]))
+                {
+                    var CompanyID = AuthHelpers.CurrentUserID(HttpContext);
+                    var comments = await new IssuesManager().GetCompanyComments(CompanyID, limit);
+                    return Ok(comments);
+                }
+                return StatusCode(401, "Authorization failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(401, ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("user")]
         public async Task<IActionResult> GetUser([FromQuery] int ID)
         {

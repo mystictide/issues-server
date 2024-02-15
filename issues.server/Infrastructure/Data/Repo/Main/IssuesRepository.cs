@@ -133,7 +133,7 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 SELECT t.id, t.projectid, t.title, t.description, t.type, t.status, t.priority, t.createddate, t.enddate, t.isactive, u.id, u.firstname, u.lastname
                 FROM issues t
                 left join users u on u.id = t.createdby
-                WHERE t.isactive = true and t.projectid in (select p.id from projects p where p.companyid = {ID}) {limited};";
+                WHERE t.isactive = true and t.projectid in (select p.id from projects p where p.companyid = {ID}) order by t.createddate desc {limited};";
 
                 using (var con = GetConnection)
                 {
@@ -144,6 +144,40 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                                i.CreatedBy = u ?? new UserResponse();
                                return i;
                            }, splitOn: "id");
+                        return res;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await new LogsRepository().CreateLog(ex);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<Comments>?> GetCompanyComments(int ID, int? limit)
+        {
+            try
+            {
+                string limited = limit.HasValue ? $"limit {limit}" : "";
+                string query = $@"
+                SELECT t.id, t.issueid, t.body, t.createddate, t.isactive, u.id, u.firstname, u.lastname
+                FROM comments t
+                left join users u on u.id = t.userid
+                WHERE t.isactive = true
+                and t.issueid in (select i.id from issues i where i.projectid in (select p.id from projects p where p.companyid = {ID}))
+                order by t.createddate desc {limited};";
+
+                using (var con = GetConnection)
+                {
+                    if (ID > 0)
+                    {
+                        var res = await con.QueryAsync<Comments, UserResponse, Comments>(query, (i, u) =>
+                        {
+                            i.User = u ?? new UserResponse();
+                            return i;
+                        }, splitOn: "id");
                         return res;
                     }
                     return null;

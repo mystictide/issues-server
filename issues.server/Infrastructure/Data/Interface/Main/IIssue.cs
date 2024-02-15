@@ -7,6 +7,7 @@ namespace issues.server.Infrastructure.Data.Interface.Main
     public interface IIssue : IBase<Issues>
     {
         Task<IEnumerable<Issues>?> GetCompanyIssues(int ID, int? limit);
+        Task<IEnumerable<Comments>?> GetCompanyComments(int ID, int? limit);
         Task<IssueStats?> GetStatistics(int ID);
         Task<Issues?> ManageAssignedUsers(Issues entity);
         Task<int?> ManageType(int ID, int type);
