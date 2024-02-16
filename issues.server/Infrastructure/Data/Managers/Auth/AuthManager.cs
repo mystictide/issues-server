@@ -110,6 +110,7 @@ namespace issues.server.Infrastructure.Data.Managers.Auth
                 user.FirstName = result.FirstName;
                 user.LastName = result.LastName;
                 user.Email = result.Email;
+                user.Role = result.Role;
                 user.Token = generateToken(false, result.Company.ID, result.Role.Attributes);
                 return user;
             }

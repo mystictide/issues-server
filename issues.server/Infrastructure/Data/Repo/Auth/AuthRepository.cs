@@ -62,27 +62,30 @@ namespace issues.server.Infrastructure.Data.Repo.Auth
                 string WhereClause = $"WHERE (t.email = '{entity.Email}');";
 
                 string query = $@"
-                SELECT t.*, c.id, c.name, t.roleid as id
+                SELECT t.*, c.id, c.name, r.*
                 FROM users t
                 left join companies c on c.id = t.companyid
+                left join roles r on r.id = t.roleid
                 {WhereClause};";
 
                 using (var con = GetConnection)
                 {
-                    var res = await con.QueryAsync<Users, Companies, int, Users>(query, (i, u, r) =>
+                    var res = await con.QueryAsync<Users, Companies, Roles, Users>(query, (i, u, r) =>
                     {
                         i.Company = u ?? new Companies();
-                        i.Role = new Roles();
-                        i.Role.ID = r;
+                        i.Role = r ?? new Roles();
                         return i;
                     }, splitOn: "id");
                     var result = res.FirstOrDefault();
-                    query = $@"
-                    SELECT t.attributeid
-                    FROM roleattributes t
-                    where t.roleid = {result.Role.ID};";
-                    var attrs = await con.QueryAsync<int>(query);
-                    result.Role.Attributes = attrs.ToList();
+                    if (result != null && result.ID > 0)
+                    {
+                        query = $@"
+                        SELECT t.attributeid
+                        FROM roleattributes t
+                        where t.roleid = {result.Role.ID};";
+                        var attrs = await con.QueryAsync<int>(query);
+                        result.Role.Attributes = attrs.ToList();
+                    }
                     return result;
                 }
             }
