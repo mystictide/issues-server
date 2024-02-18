@@ -112,6 +112,10 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                         WHERE t.id = {res?.CreatedByID};";
                         res.CreatedBy = await con.QueryFirstOrDefaultAsync<UserResponse>(cQuery);
                         res.AssignedTo = (List<UserResponse>?)await con.QueryAsync<UserResponse>(aQuery);
+                        if (res.AssignedTo.Count() < 1)
+                        {
+                            res.AssignedTo = null;
+                        }
                         return res;
                     }
                     return null;
@@ -226,15 +230,18 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                     var res = await connection.QueryFirstOrDefaultAsync<Issues>(query);
                     query = $@"DELETE from issueassignedusers where issueid = {res?.ID};";
                     await connection.QueryFirstOrDefaultAsync<int>(query);
-                    foreach (var item in entity.AssignedTo)
+                    if (entity.AssignedTo != null)
                     {
-                        query = $@"
+                        foreach (var item in entity.AssignedTo)
+                        {
+                            query = $@"
                         INSERT INTO issueassignedusers (id, issueid, userid)
 	 	                VALUES (default, {res?.ID}, {item.ID});";
-                        await connection.QueryFirstOrDefaultAsync<UserResponse>(query);
+                            await connection.QueryFirstOrDefaultAsync<UserResponse>(query);
+                        }
                     }
                     res.CreatedBy = new UserResponse();
-                    res.AssignedTo = new List<UserResponse>();
+                    res.AssignedTo = new List<UserResponse>() ?? null;
                     res.CreatedBy.ID = entity.CreatedBy.ID;
                     res.AssignedTo = entity.AssignedTo;
                     return res;
@@ -255,12 +262,15 @@ namespace issues.server.Infrastructure.Data.Repo.Main
                 using (var connection = GetConnection)
                 {
                     await connection.QueryFirstOrDefaultAsync<int>(query);
-                    foreach (var item in entity.AssignedTo)
+                    if (entity.AssignedTo != null)
                     {
-                        query = $@"
+                        foreach (var item in entity.AssignedTo)
+                        {
+                            query = $@"
                         INSERT INTO issueassignedusers (id, issueid, userid)
 	 	                VALUES (default, {entity?.ID}, {item.ID});";
-                        await connection.QueryFirstOrDefaultAsync<UserResponse>(query);
+                            await connection.QueryFirstOrDefaultAsync<UserResponse>(query);
+                        }
                     }
                     var res = await Get(entity.ID);
                     return res;

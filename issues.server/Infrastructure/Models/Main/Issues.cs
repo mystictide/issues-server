@@ -17,7 +17,7 @@ namespace issues.server.Infrastructure.Models.Main
         [JsonIgnore]
         public int? CreatedByID { get; set; }
         public UserResponse? CreatedBy { get; set; }
-        public List<UserResponse>? AssignedTo { get; set; }
+        public List<UserResponse?>? AssignedTo { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }
